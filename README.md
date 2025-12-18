@@ -58,3 +58,22 @@ Output: 0xfff0000000000001 (sNaN)
 FPE flags: (none)
 make[1]: Leaving directory '/home/ethompson/src/rust_libm_issue'
 ```
+
+## Workaround
+
+If you're using Rust 1.87+ and need to ensure your C code uses system libm, changing the link order seems to work:
+
+```bash
+$ make workaround
+Building with Rust 1.87.0 (workaround) (-lm before -lrustlib)
+ceil symbol:                  U ceil@GLIBC_2.2.5
+ldd:
+        linux-vdso.so.1 (0x000079f7fcfa8000)
+        libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x000079f7fcea1000)
+        libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x000079f7fcc00000)
+        /lib64/ld-linux-x86-64.so.2 (0x000079f7fcfaa000)
+
+Input:  0xfff0000000000001 (sNaN)
+Output: 0xfff8000000000001 (qNaN)
+FPE flags: INVALID
+```

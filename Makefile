@@ -1,4 +1,4 @@
-.PHONY: all clean test compare
+.PHONY: all clean test compare workaround
 
 all: test
 
@@ -30,6 +30,15 @@ compare:
 	@echo ""
 	@./test-1.87
 
+workaround:
+	@echo "Building with Rust 1.87.0 (workaround) (-lm before -lrustlib)"
+	@rustup run 1.87.0 cargo build --release 2>&1 | grep -v "Compiling\|Finished" || true
+	@gcc -o test-workaround test.c -lm -L./target/release -lrust_libm_issue
+	@echo "ceil symbol: $$(nm test-workaround | grep ceil)"
+	@echo "ldd:\n$$(ldd test-workaround)"
+	@echo ""
+	@./test-workaround
+
 clean:
 	cargo clean
-	rm -f test-1.86 test-1.87
+	rm -f test-1.86 test-1.87 test-workaround
